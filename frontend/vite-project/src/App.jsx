@@ -12,7 +12,7 @@ import CreateQuiz from "./pages/CreateQuiz";
 import EditQuiz from "./pages/EditQuiz";
 import SolveQuiz from "./pages/SolveQuiz";
 import ResultPage from "./pages/ResultPage"; 
-import Leaderboard from "./pages/LeaderBoard";
+import Leaderboard from "./pages/Leaderboard";
 
 function App() {
   const location = useLocation();
