@@ -11,7 +11,8 @@ import AdminQuizzes from "./pages/AdminQuizzes";
 import CreateQuiz from "./pages/CreateQuiz";
 import EditQuiz from "./pages/EditQuiz";
 import SolveQuiz from "./pages/SolveQuiz";
-import ResultPage from "./pages/ResultPage"; // <-- import ResultPage
+import ResultPage from "./pages/ResultPage"; 
+import Leaderboard from "./pages/LeaderBoard";
 
 function App() {
   const location = useLocation();
@@ -89,6 +90,16 @@ function App() {
           element={
             <ProtectedUserRoute>
               <ResultPage />
+            </ProtectedUserRoute>
+          }
+        />
+
+        {/* ✅ Leaderboard Page Route */}
+        <Route
+          path="/leaderboard/:quizId"
+          element={
+            <ProtectedUserRoute>
+              <Leaderboard/>
             </ProtectedUserRoute>
           }
         />

@@ -1,6 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import API from "../utils/api";
 import dayjs from "dayjs";
 import {
@@ -17,7 +17,6 @@ import {
 
 function Dashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState([]);
   const [attempts, setAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +42,8 @@ function Dashboard() {
   const getAttempt = (quizId) =>
     attempts.find((a) => a.quiz._id.toString() === quizId.toString());
 
-  if (loading) return <p className="text-center mt-20">Loading...</p>;
+  if (loading)
+    return <p className="text-center mt-20 text-gray-600">Loading...</p>;
 
   const attemptedQuizzes = quizzes.filter((q) => getAttempt(q._id));
   const notAttemptedQuizzes = quizzes.filter((q) => !getAttempt(q._id));
@@ -106,19 +106,19 @@ function Dashboard() {
         {/* Actions */}
         <div className="mt-4 flex flex-col md:flex-row justify-between gap-2">
           {attempted ? (
-            <button
-              onClick={() => navigate(`/result/${attempt._id}`)}
+            <Link
+              to={`/result/${attempt._id}`}
               className="flex items-center justify-center gap-2 w-full md:w-1/2 px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
             >
               <Trophy className="w-4 h-4" /> View Result
-            </button>
+            </Link>
           ) : (
-            <button
-              onClick={() => navigate(`/solve-quiz/${quiz._id}`)}
+            <Link
+              to={`/solve-quiz/${quiz._id}`}
               className="flex items-center justify-center gap-2 w-full md:w-1/2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition"
             >
               <PlayCircle className="w-4 h-4" /> Start Quiz
-            </button>
+            </Link>
           )}
           <button
             onClick={() => handleShare(quiz._id)}
@@ -143,18 +143,27 @@ function Dashboard() {
             <div className="text-left mb-4 md:mb-0 space-y-1">
               <p className="flex items-center gap-2 text-gray-600">
                 <User className="w-4 h-4 text-blue-500" />
-                Logged in as:{" "}
-                <span className="font-semibold">{user.username}</span>
+                Logged in as: <span className="font-semibold">{user.username}</span>
               </p>
               <p className="flex items-center gap-2 text-gray-600">
                 <Mail className="w-4 h-4 text-green-500" />
                 Email: <span className="font-semibold">{user.email}</span>
               </p>
             </div>
+
+            {/* Admin Dashboard Link */}
+            {user.role === "admin" && (
+              <Link
+                to="/admin"
+                className="px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition"
+              >
+                ⚡ Admin Dashboard
+              </Link>
+            )}
           </div>
         )}
 
-        {/* Not Attempted */}
+        {/* Not Attempted Quizzes */}
         {notAttemptedQuizzes.length > 0 ? (
           <>
             <h2 className="text-xl font-bold mb-4 text-gray-800">
@@ -172,7 +181,7 @@ function Dashboard() {
           </p>
         )}
 
-        {/* Attempted */}
+        {/* Attempted Quizzes */}
         {attemptedQuizzes.length > 0 && (
           <>
             <h2 className="text-xl font-bold mb-4 text-gray-800">

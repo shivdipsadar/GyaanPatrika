@@ -13,6 +13,7 @@ function ResultPage() {
       try {
         const res = await API.get(`/attempts/${attemptId}`);
         setAttempt(res.data);
+        console.log("Fetched attempt:", res.data);
       } catch (err) {
         console.error("Error fetching result:", err);
       } finally {
@@ -74,12 +75,22 @@ function ResultPage() {
           })}
         </div>
 
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-        >
-          Back to Dashboard
-        </button>
+        {/* Navigation Buttons */}
+        <div className="mt-6 flex gap-4">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          >
+            Back to Dashboard
+          </button>
+
+          <button
+            onClick={() => navigate(`/leaderboard/${quiz._id}`)}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+          >
+            View Leaderboard
+          </button>
+        </div>
       </div>
     </div>
   );
