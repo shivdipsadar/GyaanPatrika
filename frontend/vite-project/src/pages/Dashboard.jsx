@@ -29,7 +29,8 @@ function Dashboard() {
           API.get("/attempts/my-attempts"),
         ]);
         setQuizzes(quizRes.data);
-        setAttempts(attemptRes.data);
+        // ✅ filter out invalid attempts (where quiz is null)
+        setAttempts(attemptRes.data.filter((a) => a.quiz && a.quiz._id));
       } catch (err) {
         console.error("Error fetching data:", err);
       } finally {
@@ -39,8 +40,11 @@ function Dashboard() {
     fetchData();
   }, []);
 
+  // ✅ Safe check
   const getAttempt = (quizId) =>
-    attempts.find((a) => a.quiz._id.toString() === quizId.toString());
+    attempts.find(
+      (a) => a.quiz && a.quiz._id && a.quiz._id.toString() === quizId.toString()
+    );
 
   if (loading)
     return <p className="text-center mt-20 text-gray-600">Loading...</p>;
@@ -107,7 +111,7 @@ function Dashboard() {
         <div className="mt-4 flex flex-col md:flex-row justify-between gap-2">
           {attempted ? (
             <Link
-              to={`/result/${attempt._id}`}
+              to={`/result/${attempt?._id}`}
               className="flex items-center justify-center gap-2 w-full md:w-1/2 px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
             >
               <Trophy className="w-4 h-4" /> View Result
@@ -143,7 +147,8 @@ function Dashboard() {
             <div className="text-left mb-4 md:mb-0 space-y-1">
               <p className="flex items-center gap-2 text-gray-600">
                 <User className="w-4 h-4 text-blue-500" />
-                Logged in as: <span className="font-semibold">{user.username}</span>
+                Logged in as:{" "}
+                <span className="font-semibold">{user.username}</span>
               </p>
               <p className="flex items-center gap-2 text-gray-600">
                 <Mail className="w-4 h-4 text-green-500" />
