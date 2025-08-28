@@ -12,6 +12,10 @@ function SolveQuiz() {
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(null);
 
+  // New states for visited and review
+  const [visited, setVisited] = useState([]);
+  const [review, setReview] = useState([]);
+
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
@@ -20,7 +24,7 @@ function SolveQuiz() {
           setQuiz(res.data);
           setAnswers(new Array(res.data.questions.length).fill(null));
           if (res.data.timeLimit && res.data.timeLimit > 0) {
-            setTimeLeft(res.data.timeLimit * 60); // convert minutes → seconds
+            setTimeLeft(res.data.timeLimit * 60); // minutes → seconds
           }
         } else {
           setQuiz({ ...res.data, questions: [] });
@@ -74,7 +78,7 @@ function SolveQuiz() {
   if (!quiz.questions || quiz.questions.length === 0)
     return <p className="text-center mt-20">No questions in this quiz.</p>;
 
-  // 📌 Instruction Page
+  // Instruction Page
   if (!started) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
@@ -113,7 +117,24 @@ function SolveQuiz() {
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  // 📌 Actual Quiz Page
+  // Update visited when navigating to a question
+  const goToQuestion = (idx) => {
+    setCurrentQ(idx);
+    if (!visited.includes(idx)) {
+      setVisited([...visited, idx]);
+    }
+  };
+
+  // Toggle review mark for current question
+  const toggleReview = () => {
+    if (review.includes(currentQ)) {
+      setReview(review.filter((q) => q !== currentQ));
+    } else {
+      setReview([...review, currentQ]);
+    }
+  };
+
+  // Actual Quiz Page
   return (
     <div className="min-h-screen flex flex-col md:flex-row p-6 bg-gray-100">
       {/* Questions */}
@@ -144,10 +165,22 @@ function SolveQuiz() {
           ))}
         </div>
 
+        {/* Review Button */}
+        <button
+          onClick={toggleReview}
+          className={`mt-4 px-4 py-2 rounded ${
+            review.includes(currentQ)
+              ? "bg-purple-500 text-white hover:bg-purple-600"
+              : "bg-gray-300 hover:bg-gray-400"
+          }`}
+        >
+          {review.includes(currentQ) ? "Unmark Review" : "Mark for Review"}
+        </button>
+
         {/* Navigation */}
         <div className="flex justify-between mt-4">
           <button
-            onClick={() => setCurrentQ((prev) => Math.max(prev - 1, 0))}
+            onClick={() => goToQuestion(Math.max(currentQ - 1, 0))}
             className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             disabled={currentQ === 0}
           >
@@ -162,7 +195,7 @@ function SolveQuiz() {
             </button>
           ) : (
             <button
-              onClick={() => setCurrentQ((prev) => prev + 1)}
+              onClick={() => goToQuestion(currentQ + 1)}
               className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             >
               Next
@@ -173,17 +206,41 @@ function SolveQuiz() {
 
       {/* Question Navigation */}
       <div className="md:w-1/4 mt-6 md:mt-0 md:ml-6 bg-white shadow-lg rounded-lg p-4 flex flex-wrap gap-2">
-        {quiz.questions.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setCurrentQ(idx)}
-            className={`w-10 h-10 rounded-full border flex items-center justify-center ${
-              currentQ === idx ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
-          >
-            {idx + 1}
-          </button>
-        ))}
+        {/* Legend */}
+        <div className="flex flex-col w-full mb-2 text-sm">
+          <p>
+            <span className="inline-block w-4 h-4 bg-gray-200 mr-1"></span> Unvisited
+          </p>
+          <p>
+            <span className="inline-block w-4 h-4 bg-yellow-300 mr-1"></span> Visited
+          </p>
+          <p>
+            <span className="inline-block w-4 h-4 bg-green-500 mr-1"></span> Answered
+          </p>
+          <p>
+            <span className="inline-block w-4 h-4 bg-purple-500 mr-1"></span> Marked Review
+          </p>
+        </div>
+
+        {quiz.questions.map((_, idx) => {
+          let bgClass = "bg-gray-200"; // default unvisited
+
+          if (review.includes(idx)) bgClass = "bg-purple-500 text-white";
+          else if (answers[idx] !== null) bgClass = "bg-green-500 text-white";
+          else if (visited.includes(idx)) bgClass = "bg-yellow-300";
+
+          if (currentQ === idx) bgClass += " border-2 border-blue-500";
+
+          return (
+            <button
+              key={idx}
+              onClick={() => goToQuestion(idx)}
+              className={`w-10 h-10 rounded-full flex items-center justify-center ${bgClass}`}
+            >
+              {idx + 1}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
